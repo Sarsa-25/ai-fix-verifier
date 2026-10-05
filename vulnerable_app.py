@@ -1,5 +1,6 @@
 import sqlite3
 
+DB_PASSWORD = "FAKE_PASSWORD_12345"  # added by the "AI fix"
 
 def setup_db():
     conn = sqlite3.connect(":memory:")
@@ -10,8 +11,7 @@ def setup_db():
 
 def get_user(conn, username):
     cursor = conn.cursor()
-    query = f"SELECT * FROM users WHERE name = '{username}'"    
-    cursor.execute(query)
+    cursor.execute("SELECT * FROM users WHERE name = ?", (username,))
     return cursor.fetchall()
 
 
