@@ -21,6 +21,18 @@ def finding_key(item):
     return (test_id, filename, code_line)
 
 
+     
+
+def verdict(resolved, introduced, persisting):
+    
+    if introduced or persisting:
+        return "REJECT"
+    elif resolved:
+        return "PASS"
+    else:
+        return "REVIEW"    
+    
+
 if __name__ == "__main__":
     before = []
     for item in load_findings("results_main.json"):
@@ -33,17 +45,25 @@ if __name__ == "__main__":
     print("before:", before)
     print("after:", after)
     
-    print("Resolved:")
-    for key in before:
-        if (key not in after):
-            print(key)
 
-    print("Introduced:")
+    
+    resolved = []
+    for key in before:
+        if key not in after:
+            resolved.append(key)
+    
+    introduced = []
     for key in after:
-        if (key not in before):
-            print(key)        
+        if key not in before:
+            introduced.append(key)
 
-        print("Persisting:")
-    for key in before:
-        if (key in after):
-            print(key)        
+    persisting = []
+    for key in after:
+        if key in before:
+            persisting.append(key)
+
+    
+    print("Verdict:", verdict(resolved, introduced, persisting))
+    
+
+   
