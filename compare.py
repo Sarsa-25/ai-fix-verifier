@@ -22,6 +22,23 @@ def finding_key(item):
 
 
 if __name__ == "__main__":
-    for path in ["results_main.json", "results_secret.json"]:
-        for item in load_findings(path):
-            print(path, finding_key(item))
+    before = []
+    for item in load_findings("results_main.json"):
+        before.append(finding_key(item))
+
+    after = []
+    for item in load_findings("results_secret.json"):
+        after.append(finding_key(item))
+
+    print("before:", before)
+    print("after:", after)
+    
+    print("Resolved:")
+    for key in before:
+        if (key not in after):
+            print(key)
+
+    print("Introduced:")
+    for key in after:
+        if (key not in before):
+            print(key)        
