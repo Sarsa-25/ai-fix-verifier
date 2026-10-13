@@ -42,3 +42,8 @@ if __name__ == "__main__":
     for key in after:
         if (key not in before):
             print(key)        
+
+        print("Persisting:")
+    for key in before:
+        if (key in after):
+            print(key)        
