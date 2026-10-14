@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 
 def load_findings(path):
@@ -34,12 +35,18 @@ def verdict(resolved, introduced, persisting):
     
 
 if __name__ == "__main__":
+    
+    if len(sys.argv) != 3:
+        print("Usage: python compare.py <before.json> <after.json>")
+        sys.exit(1)
+   
+    
     before = []
-    for item in load_findings("results_main.json"):
+    for item in load_findings(sys.argv[1]):
         before.append(finding_key(item))
 
     after = []
-    for item in load_findings("results_secret.json"):
+    for item in load_findings(sys.argv[2]):
         after.append(finding_key(item))
 
     print("before:", before)
