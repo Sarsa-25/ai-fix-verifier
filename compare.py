@@ -69,7 +69,9 @@ if __name__ == "__main__":
         if key in before:
             persisting.append(key)
 
-    
+    print("resolved:", resolved)
+    print("introduced:", introduced)
+    print("persisting:", persisting)
     print("Verdict:", verdict(resolved, introduced, persisting))
     
 
