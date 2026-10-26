@@ -33,6 +33,31 @@ def verdict(resolved, introduced, persisting):
     else:
         return "REVIEW"    
     
+def classify(before_findings, after_findings):
+    before = []
+    for item in before_findings:
+        before.append(finding_key(item))
+
+    after = []
+    for item in after_findings:
+        after.append(finding_key(item))
+
+    resolved = []
+    for key in before:
+        if key not in after:
+            resolved.append(key)
+
+    introduced = []
+    for key in after:   
+        if key not in before:
+            introduced.append(key)
+
+    persisting = []
+    for key in after:
+        if key in before:
+            persisting.append(key)
+
+    return resolved, introduced, persisting
 
 if __name__ == "__main__":
     
