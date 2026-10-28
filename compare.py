@@ -1,12 +1,26 @@
+import io
 import json
 import os
 import sys
+import tokenize
 
 
 def load_findings(path):
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     return data["results"]
+
+
+def strip_comment(line):
+    """Remove a trailing Python comment, but keep '#' that is inside a string."""
+    try:
+        for tok in tokenize.generate_tokens(io.StringIO(line).readline):
+            if tok.type == tokenize.COMMENT:
+                return line[: tok.start[1]].rstrip()
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        # Partial line (e.g. the first line of a multi-line call): keep it as is
+        pass
+    return line.strip()
 
 
 def finding_key(item):
@@ -17,7 +31,7 @@ def finding_key(item):
     for line in item["code"].split("\n"):
         number, _, text = line.partition(" ")
         if number.isdigit() and int(number) == item["line_number"]:
-            code_line = text.strip()
+            code_line = strip_comment(text.strip())
 
     return (test_id, filename, code_line)
 

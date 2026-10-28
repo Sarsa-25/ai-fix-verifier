@@ -1,0 +1,13 @@
+Date: 2026-10-28T17:35:42
+Before ref: main
+After ref: test/comment-only
+File: vulnerable_app.py
+
+Counts (resolved introduced persisting): 0 0 1
+
+Resolved:
+Introduced:
+Persisting:
+  ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+
+Verdict: REJECT
