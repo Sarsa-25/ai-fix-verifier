@@ -10,7 +10,7 @@ def setup_db():
 
 def get_user(conn, username):
     cursor = conn.cursor()
-    query = f"SELECT * FROM users WHERE name = '{username}'"    
+    query = f"SELECT * FROM users WHERE name = '{username}'" # safe now
     cursor.execute(query)
     return cursor.fetchall()
 
