@@ -1,0 +1,14 @@
+Date: 2026-10-28T19:29:14
+Before ref: test/dup-before
+After ref: test/dup-partial
+File: vulnerable_app.py
+
+Counts (resolved introduced persisting): 1 0 1
+
+Resolved:
+  ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+  ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+
+Verdict: REJECT

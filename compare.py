@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import tokenize
+from collections import Counter
 
 
 def load_findings(path):
@@ -48,28 +49,17 @@ def verdict(resolved, introduced, persisting):
         return "REVIEW"    
     
 def classify(before_findings, after_findings):
-    before = []
-    for item in before_findings:
-        before.append(finding_key(item))
+    """Compare findings as multisets, so identical keys are counted, not merged.
 
-    after = []
-    for item in after_findings:
-        after.append(finding_key(item))
+    Example: before has the same key twice, after has it once
+    -> 1 resolved, 0 introduced, 1 persisting.
+    """
+    before = Counter(finding_key(item) for item in before_findings)
+    after = Counter(finding_key(item) for item in after_findings)
 
-    resolved = []
-    for key in before:
-        if key not in after:
-            resolved.append(key)
-
-    introduced = []
-    for key in after:   
-        if key not in before:
-            introduced.append(key)
-
-    persisting = []
-    for key in after:
-        if key in before:
-            persisting.append(key)
+    resolved = list((before - after).elements())
+    introduced = list((after - before).elements())
+    persisting = list((before & after).elements())
 
     return resolved, introduced, persisting
 
