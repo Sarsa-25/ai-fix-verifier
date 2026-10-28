@@ -16,7 +16,7 @@ import sys
 import tempfile
 from datetime import datetime
 
-from compare import classify, verdict
+from compare import classify, finding_key, verdict
 
 OUTPUT_DIR = "outputs"
 
@@ -68,21 +68,33 @@ def safe_name(ref):
     return ref.replace("/", "-").replace("\\", "-")
 
 
-def build_report(before_ref, after_ref, path, resolved, introduced, persisting, result):
+def describe(findings):
+    """Map each finding key to 'severity/confidence' as reported by Bandit."""
+    labels = {}
+    for item in findings:
+        labels[finding_key(item)] = f"{item['issue_severity']}/{item['issue_confidence']}"
+    return labels
+
+
+def build_report(before_ref, after_ref, path, resolved, introduced, persisting, result, labels):
+    def show(key):
+        return f"  [{labels.get(key, '?')}] {key}"
+
     lines = [
         f"Date: {datetime.now().isoformat(timespec='seconds')}",
         f"Before ref: {before_ref}",
         f"After ref: {after_ref}",
         f"File: {path}",
         "",
+        "Policy: any introduced or persisting finding gives REJECT, at every severity",
         f"Counts (resolved introduced persisting): {len(resolved)} {len(introduced)} {len(persisting)}",
         "",
         "Resolved:",
-        *[f"  {key}" for key in resolved],
+        *[show(key) for key in resolved],
         "Introduced:",
-        *[f"  {key}" for key in introduced],
+        *[show(key) for key in introduced],
         "Persisting:",
-        *[f"  {key}" for key in persisting],
+        *[show(key) for key in persisting],
         "",
         f"Verdict: {result}",
     ]
@@ -102,7 +114,11 @@ def main():
     resolved, introduced, persisting = classify(before_json["results"], after_json["results"])
     result = verdict(resolved, introduced, persisting)
 
-    report = build_report(before_ref, after_ref, path, resolved, introduced, persisting, result)
+    labels = describe(before_json["results"])
+    labels.update(describe(after_json["results"]))
+    report = build_report(
+        before_ref, after_ref, path, resolved, introduced, persisting, result, labels
+    )
     print(report, end="")
 
     stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
