@@ -1,0 +1,13 @@
+Date: 2026-10-28T02:04:01
+Before ref: main
+After ref: fix/sqli-parameterized
+File: vulnerable_app.py
+
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+
+Verdict: PASS
