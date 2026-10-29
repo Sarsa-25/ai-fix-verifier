@@ -37,17 +37,16 @@ def finding_key(item):
     return (test_id, filename, code_line)
 
 
-     
-
 def verdict(resolved, introduced, persisting):
-    
+    """Strict policy: any introduced or persisting finding fails the fix."""
     if introduced or persisting:
         return "REJECT"
     elif resolved:
         return "PASS"
     else:
-        return "REVIEW"    
-    
+        return "REVIEW"
+
+
 def classify(before_findings, after_findings):
     """Compare findings as multisets, so identical keys are counted, not merged.
 
@@ -63,45 +62,17 @@ def classify(before_findings, after_findings):
 
     return resolved, introduced, persisting
 
+
 if __name__ == "__main__":
-    
+    # Compare two Bandit JSON files directly (verify.py is the main entry point).
     if len(sys.argv) != 3:
         print("Usage: python compare.py <before.json> <after.json>")
         sys.exit(1)
-   
-    
-    before = []
-    for item in load_findings(sys.argv[1]):
-        before.append(finding_key(item))
 
-    after = []
-    for item in load_findings(sys.argv[2]):
-        after.append(finding_key(item))
-
-    print("before:", before)
-    print("after:", after)
-    
-
-    
-    resolved = []
-    for key in before:
-        if key not in after:
-            resolved.append(key)
-    
-    introduced = []
-    for key in after:
-        if key not in before:
-            introduced.append(key)
-
-    persisting = []
-    for key in after:
-        if key in before:
-            persisting.append(key)
-
+    resolved, introduced, persisting = classify(
+        load_findings(sys.argv[1]), load_findings(sys.argv[2])
+    )
     print("resolved:", resolved)
     print("introduced:", introduced)
     print("persisting:", persisting)
     print("Verdict:", verdict(resolved, introduced, persisting))
-    
-
-   
