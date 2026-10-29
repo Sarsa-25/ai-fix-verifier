@@ -2,4 +2,4 @@ import subprocess
 
 
 def ping(host):
-    return subprocess.run(f"ping -c 1 {host}", shell=True, capture_output=True)
+    return subprocess.run(["ping", "-c", "1", host], capture_output=True)
