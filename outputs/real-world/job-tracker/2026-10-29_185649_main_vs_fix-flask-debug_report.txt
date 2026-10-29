@@ -1,0 +1,14 @@
+Date: 2026-10-29T18:56:49
+Before ref: main
+After ref: fix/flask-debug
+File: app.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  [HIGH/MEDIUM] ('B201', 'app.py', 'app.run(debug=True)')
+Introduced:
+Persisting:
+
+Verdict: PASS
