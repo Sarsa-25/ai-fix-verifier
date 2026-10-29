@@ -1,0 +1,16 @@
+Date: 2026-10-29T17:41:04
+Before ref: case/C06-before
+After ref: case/C06-after
+File: cases/c06.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 1 1
+
+Resolved:
+  [HIGH/HIGH] ('B602', 'c06.py', 'return subprocess.run(f"ping -c 1 {host}", shell=True, capture_output=True)')
+Introduced:
+  [HIGH/HIGH] ('B602', 'c06.py', 'return subprocess.run(f"ping -c 1 {shlex.quote(host)}", shell=True, capture_output=True)')
+Persisting:
+  [LOW/HIGH] ('B404', 'c06.py', 'import subprocess')
+
+Verdict: REJECT

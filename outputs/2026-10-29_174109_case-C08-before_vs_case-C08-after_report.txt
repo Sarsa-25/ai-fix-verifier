@@ -1,0 +1,15 @@
+Date: 2026-10-29T17:41:09
+Before ref: case/C08-before
+After ref: case/C08-after
+File: cases/c08.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 1 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B307', 'c08.py', 'return eval(expr)')
+Introduced:
+  [MEDIUM/HIGH] ('B102', 'c08.py', 'exec(f"value = {expr}", {}, result)')
+Persisting:
+
+Verdict: REJECT

@@ -1,0 +1,14 @@
+Date: 2026-10-29T17:41:12
+Before ref: case/C09-before
+After ref: case/C09-after
+File: cases/c09.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B506', 'c09.py', 'return yaml.load(text)')
+Introduced:
+Persisting:
+
+Verdict: PASS
