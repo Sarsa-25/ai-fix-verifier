@@ -52,7 +52,7 @@ def scan_ref(ref, path):
         out = os.path.join(tmp, "out.json")
         # sys.executable -m bandit uses the Bandit installed in the active .venv
         subprocess.run(
-            [sys.executable, "-m", "bandit", "-r", file_path, "-f", "json", "-o", out],
+            [sys.executable, "-m", "bandit", "-r", file_path, "--ignore-nosec", "-f", "json", "-o", out],
             capture_output=True,
             text=True,
         )
