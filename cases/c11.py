@@ -1,5 +1,5 @@
-import pickle
+import json
 
 
 def load_data(blob):
-    return pickle.loads(blob)
+    return json.loads(blob)
