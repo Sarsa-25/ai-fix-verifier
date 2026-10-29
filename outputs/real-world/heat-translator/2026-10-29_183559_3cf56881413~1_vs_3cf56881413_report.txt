@@ -1,0 +1,15 @@
+Date: 2026-10-29T18:35:59
+Before ref: 3cf56881413~1
+After ref: 3cf56881413
+File: translator/common/utils.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 0 1
+
+Resolved:
+  [MEDIUM/HIGH] ('B506', 'utils.py', 'return yaml.load(open(yaml_file))')
+Introduced:
+Persisting:
+  [MEDIUM/LOW] ('B113', 'utils.py', "keystone_response = requests.post(auth_url + '/tokens',")
+
+Verdict: REJECT

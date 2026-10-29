@@ -1,0 +1,14 @@
+Date: 2026-10-29T18:36:08
+Before ref: 3cf56881413~1
+After ref: 3cf56881413
+File: translator/hot/tosca/tosca_policies_scaling.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B506', 'tosca_policies_scaling.py', 'template_dict = yaml.load(HEAT_TEMPLATE_BASE)')
+Introduced:
+Persisting:
+
+Verdict: PASS
