@@ -1,2 +1,5 @@
+import ast
+
+
 def calc(expr):
-    return eval(expr)
+    return ast.literal_eval(expr)
