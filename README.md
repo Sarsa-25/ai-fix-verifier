@@ -100,6 +100,16 @@ python run_cases.py
 
 This writes `outputs/<date_time>_summary.md` and `.csv`.
 
+Check a fix in another repository: run the tool from inside that repository, with full paths to this project's Python and `verify.py`. Run it once per changed Python file.
+
+```powershell
+cd C:\path\to\other-project
+git diff --name-only <before_ref> <after_ref> -- "*.py"
+C:\path\to\ai-fix-verifier\.venv\Scripts\python C:\path\to\ai-fix-verifier\verify.py <before_ref> <after_ref> path/to/file.py
+```
+
+For a single fix commit, use `<commit>~1` (the commit before it) as the before ref. The reports are saved in `outputs/` inside that repository.
+
 Other scripts:
 
 | Script | Purpose |
@@ -140,10 +150,26 @@ Branches: C01 `fix/sqli-parameterized`, C02 `fix/sqli-with-secret`, C03 `test/co
 
 The fixes in this test set were written by hand with help from a chat assistant. They are not output from an AI coding tool.
 
+## Real-world check
+
+The tool was also run on a real fix in an open-source project: [OpenStack heat-translator](https://github.com/openstack/heat-translator), commit `3cf56881413` (2017, "Replace yaml.load() with yaml.safe_load()"). The project's own developer wrote this fix.
+
+```powershell
+verify.py 3cf56881413~1 3cf56881413 <file>
+```
+
+| File | Counts (r i p) | Verdict |
+|---|---|---|
+| `translator/common/utils.py` | 1 0 1 | REJECT |
+| `translator/hot/tosca/tosca_policies_scaling.py` | 1 0 0 | PASS |
+| `translator/shell.py` | 1 0 0 | PASS |
+
+The fix is correct in all three files, and the unsafe `yaml.load` (B506) is resolved in each one. `utils.py` is still rejected, because an older finding that has nothing to do with the fix remains in the file (B113, an HTTP request without a timeout). This is the same limitation as case C12, now seen on real code. The reports are in `outputs/real-world/heat-translator/`.
+
 ## Limitations
 
 - **C05: correct fix rejected.** Bandit flags every use of `subprocess` (B404, B603, B607), even a safe one.
-- **C12: correct fix rejected.** The strict policy also counts unrelated findings that were already in the file.
+- **C12: correct fix rejected.** The strict policy also counts unrelated findings that were already in the file. The real-world check shows the same problem.
 - **C17: deleted code passes.** Removing the vulnerable function removes the finding, and a static scan cannot see the lost functionality.
 - **Text changes break matching.** If the vulnerable line itself changes (C06, C10, C15, C16), the same finding is counted as resolved + introduced. The verdict stays correct here, but the counts are wrong.
 - **One file per run**, and only what Bandit can detect. Bandit is a pattern-based scanner and can miss issues.
