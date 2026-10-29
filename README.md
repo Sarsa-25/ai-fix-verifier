@@ -150,7 +150,9 @@ Branches: C01 `fix/sqli-parameterized`, C02 `fix/sqli-with-secret`, C03 `test/co
 
 The fixes in this test set were written by hand with help from a chat assistant. They are not output from an AI coding tool.
 
-## Real-world check
+## Real-world checks
+
+### 1. An open-source fix
 
 The tool was also run on a real fix in an open-source project: [OpenStack heat-translator](https://github.com/openstack/heat-translator), commit `3cf56881413` (2017, "Replace yaml.load() with yaml.safe_load()"). The project's own developer wrote this fix.
 
@@ -166,10 +168,34 @@ verify.py 3cf56881413~1 3cf56881413 <file>
 
 The fix is correct in all three files, and the unsafe `yaml.load` (B506) is resolved in each one. `utils.py` is still rejected, because an older finding that has nothing to do with the fix remains in the file (B113, an HTTP request without a timeout). This is the same limitation as case C12, now seen on real code. The reports are in `outputs/real-world/heat-translator/`.
 
+### 2. Detect, fix and verify on my own project
+
+[job-tracker](https://github.com/Sarsa-25/job-tracker) is a small Flask app of mine. Bandit found one issue there:
+
+```
+B201  app.run(debug=True)   Severity: HIGH   Confidence: MEDIUM   CWE-94
+```
+
+`debug=True` turns on the Werkzeug debugger. If the app can be reached over the network, the debugger lets anyone run code on the server. I wrote the fix by hand on a branch, so debug mode is now off unless `FLASK_DEBUG=1` is set:
+
+```python
+app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
+```
+
+```powershell
+verify.py main fix/flask-debug app.py
+```
+
+| File | Counts (r i p) | Verdict |
+|---|---|---|
+| `app.py` | 1 0 0 | PASS |
+
+B201 is resolved and nothing new was introduced, so the fix was merged. The report is in `outputs/real-world/job-tracker/`.
+
 ## Limitations
 
 - **C05: correct fix rejected.** Bandit flags every use of `subprocess` (B404, B603, B607), even a safe one.
-- **C12: correct fix rejected.** The strict policy also counts unrelated findings that were already in the file. The real-world check shows the same problem.
+- **C12: correct fix rejected.** The strict policy also counts unrelated findings that were already in the file. The open-source check shows the same problem.
 - **C17: deleted code passes.** Removing the vulnerable function removes the finding, and a static scan cannot see the lost functionality.
 - **Text changes break matching.** If the vulnerable line itself changes (C06, C10, C15, C16), the same finding is counted as resolved + introduced. The verdict stays correct here, but the counts are wrong.
 - **One file per run**, and only what Bandit can detect. Bandit is a pattern-based scanner and can miss issues.
