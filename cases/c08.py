@@ -1,2 +1,4 @@
 def calc(expr):
-    return eval(expr)
+    result = {}
+    exec(f"value = {expr}", {}, result)
+    return result["value"]
