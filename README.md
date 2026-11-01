@@ -1,22 +1,14 @@
 # AI Fix Verifier
 
-A small tool that checks whether a security fix (for example one suggested by an AI assistant) **removes the vulnerability without adding a new one**.
+AI tools are getting good at suggesting fixes for security bugs. But how do you know a suggested fix actually worked? It might fix the bug, fix only part of it, or fix it and quietly add a new problem somewhere else.
 
-It scans the code before and after the fix with [Bandit](https://bandit.readthedocs.io/), compares the findings, and gives a verdict: **PASS**, **REJECT** or **REVIEW**.
+This is my master's project in Cybersecurity (non-thesis). It's a small tool that answers one question about a fix: **did it remove the vulnerability without adding a new one?**
 
-> Master's project (non-thesis) in Cybersecurity.
+It runs [Bandit](https://bandit.readthedocs.io/) on the code before and after the fix, compares the two sets of findings, and gives a verdict: **PASS**, **REJECT** or **REVIEW**.
+
+**Try it without installing anything:** [open the demo in Google Colab](https://colab.research.google.com/github/Sarsa-25/ai-fix-verifier/blob/main/demo.ipynb) and click *Runtime → Run all* (about two minutes).
 
 ---
-
-## Why
-
-AI tools can now propose fixes for vulnerabilities. A proposed fix can:
-
-- really fix the problem,
-- fix it only partly, or
-- fix it and introduce a different vulnerability.
-
-Reading every change by hand does not scale. This project automates a first, repeatable check.
 
 ## How it works
 
@@ -26,39 +18,41 @@ code before the fix (Git ref) ──► Bandit ──┐
 code after the fix  (Git ref) ──► Bandit ──┘
 ```
 
-Each finding is identified by **(Bandit test ID, file name, source line)** and placed in one group:
+Every finding gets an identity made of three things: the Bandit test ID, the file name, and the line of code. Then each finding goes into one of three groups:
 
 | Group | Meaning |
 |---|---|
-| **resolved** | in the before scan, not in the after scan |
-| **introduced** | not in the before scan, new in the after scan |
-| **persisting** | in both scans |
+| **resolved** | was there before the fix, gone after |
+| **introduced** | wasn't there before, appeared after |
+| **persisting** | there before and still there after |
 
-Verdict policy (strict):
+And the verdict follows from the groups:
 
-| Condition | Verdict |
+| What the tool sees | Verdict |
 |---|---|
-| any introduced or persisting finding | **REJECT** |
+| anything introduced or persisting | **REJECT** |
 | only resolved findings | **PASS** |
-| no findings on either side | **REVIEW** |
+| no findings at all, before or after | **REVIEW** |
 
-The policy ignores Bandit severity on purpose: Bandit rates a hardcoded password (B105) as LOW, yet a leaked secret is a real risk.
+I chose a strict rule on purpose and ignore Bandit's severity. Bandit rates a hardcoded password (B105) as LOW, but a leaked password is a real risk, so I didn't want it to slip through.
 
-### Matching details
+### Three problems I found in the comparison, and how I fixed them
 
-- **Comments are ignored.** A trailing comment (for example `# safe now`) does not change a finding's identity. Comments are removed with Python's `tokenize`, so a `#` inside a string is kept.
-- **Duplicates are counted.** Findings are compared as multisets (`collections.Counter`), so fixing one of two identical vulnerable lines shows as 1 resolved + 1 persisting.
-- **`# nosec` is ignored.** Bandit runs with `--ignore-nosec`, so a fix cannot hide a vulnerability by suppressing the warning.
+Comparing "before" and "after" turned out to be trickier than I expected. Three test cases broke my first version:
+
+- **A comment changed the identity.** If a fix only added `# safe now` to the vulnerable line, the line's text changed, so the tool counted the same bug as "resolved" plus "introduced". Now comments are stripped with Python's `tokenize` before comparing (and a `#` inside a string is kept).
+- **Duplicates were merged.** With two identical vulnerable lines and only one of them fixed, the partial fix was invisible. Now findings are counted with `collections.Counter`, so it shows 1 resolved and 1 persisting.
+- **`# nosec` could hide a bug.** Adding `# nosec` makes Bandit skip a line, so a "fix" could just silence the warning and pass. Now Bandit runs with `--ignore-nosec`.
 
 ## Setup
 
-Tested with Python 3.14 and Bandit 1.9.4 on Windows.
+I tested it with Python 3.14 and Bandit 1.9.4 on Windows.
 
 ```powershell
 git clone https://github.com/Sarsa-25/ai-fix-verifier.git
 cd ai-fix-verifier
 
-# get every test-case branch as a local branch
+# a fresh clone only has main; this gets every test-case branch too
 git fetch --update-head-ok origin "+refs/heads/*:refs/heads/*"
 
 python -m venv .venv
@@ -68,14 +62,14 @@ pip install -r requirements.txt
 
 ## Usage
 
-Check one fix:
+To check one fix:
 
 ```powershell
 python verify.py <before_ref> <after_ref> <file_path>
 python verify.py main fix/sqli-with-secret vulnerable_app.py
 ```
 
-Example output:
+What you get:
 
 ```
 Policy: any introduced or persisting finding gives REJECT, at every severity
@@ -90,17 +84,15 @@ Persisting:
 Verdict: REJECT
 ```
 
-`[MEDIUM/LOW]` is Bandit's severity/confidence. Each run saves a report and both raw Bandit JSON files in `outputs/`, named with the date and the two refs.
+This fix removed the SQL injection but added a hardcoded password, so it's rejected. `[MEDIUM/LOW]` is Bandit's severity/confidence. Every run also saves the report and both raw Bandit outputs in `outputs/`.
 
-Run the whole test set:
+To run the whole test set:
 
 ```powershell
 python run_cases.py
 ```
 
-This writes `outputs/<date_time>_summary.md` and `.csv`.
-
-Check a fix in another repository: run the tool from inside that repository, with full paths to this project's Python and `verify.py`. Run it once per changed Python file.
+To check a fix in a different repository, run the tool from inside that repository, using the full paths to this project's Python and `verify.py`. Run it once for each Python file the fix changed:
 
 ```powershell
 cd C:\path\to\other-project
@@ -108,18 +100,20 @@ git diff --name-only <before_ref> <after_ref> -- "*.py"
 C:\path\to\ai-fix-verifier\.venv\Scripts\python C:\path\to\ai-fix-verifier\verify.py <before_ref> <after_ref> path/to/file.py
 ```
 
-For a single fix commit, use `<commit>~1` (the commit before it) as the before ref. The reports are saved in `outputs/` inside that repository.
+For a single fix commit, use `<commit>~1` (the commit just before it) as the "before" ref.
 
-Other scripts:
+The other files:
 
-| Script | Purpose |
+| File | What it does |
 |---|---|
-| `compare.py` | Matching and verdict logic. Can also compare two Bandit JSON files: `python compare.py before.json after.json` |
-| `build_cases.py` | Created the Git branches for cases C05–C19 (already done; refuses to run twice) |
+| `compare.py` | the matching and the verdict. It can also compare two Bandit JSON files: `python compare.py before.json after.json` |
+| `run_cases.py` | runs all 19 cases and writes a summary table |
+| `build_cases.py` | created the branches for cases C05–C19 (already run; it refuses to run twice) |
+| `demo.ipynb` | the Colab demo |
 
 ## Test set and results
 
-19 hand-built cases covering six scenario types. Every case is a pair of Git refs, so each result can be re-run.
+I built 19 small cases to cover six kinds of situations. Each case is a pair of Git refs (before and after), so anyone can re-run it. Before running the tool, I wrote down what the right verdict should be ("Expected").
 
 | Case | Scenario | Change | Tool | Expected |
 |---|---|---|---|---|
@@ -143,18 +137,15 @@ Other scripts:
 | C18 | ambiguous comparison | no findings before or after | REVIEW | REVIEW |
 | C19 | ambiguous comparison | `# nosec` added to the vulnerable line | REJECT | REJECT |
 
-**Verdict agreement: 16/19** (run of 2026-10-29, `outputs/2026-10-29_174140_summary.md`).
-"Expected" is a human judgement of each fix, set before the run.
+**The tool's verdict matched mine in 16 of 19 cases** (run of 2026-10-29, saved in `outputs/2026-10-29_174140_summary.md`). The three it got wrong are explained under Limitations.
 
-Branches: C01 `fix/sqli-parameterized`, C02 `fix/sqli-with-secret`, C03 `test/comment-only` (all against `main`), C04 `test/dup-before` → `test/dup-partial`, C05–C19 `case/CXX-before` → `case/CXX-after`.
+Branches: C01 `fix/sqli-parameterized`, C02 `fix/sqli-with-secret`, C03 `test/comment-only` (all compared with `main`), C04 `test/dup-before` → `test/dup-partial`, C05–C19 `case/CXX-before` → `case/CXX-after`.
 
-The fixes in this test set were written by hand with help from a chat assistant. They are not output from an AI coding tool.
+## Trying it on real code
 
-## Real-world checks
+### 1. A real open-source fix
 
-### 1. An open-source fix
-
-The tool was also run on a real fix in an open-source project: [OpenStack heat-translator](https://github.com/openstack/heat-translator), commit `3cf56881413` (2017, "Replace yaml.load() with yaml.safe_load()"). The project's own developer wrote this fix.
+I ran the tool on a 2017 security fix in [OpenStack heat-translator](https://github.com/openstack/heat-translator), commit `3cf56881413` ("Replace yaml.load() with yaml.safe_load()"). That project's developers wrote the fix themselves.
 
 ```powershell
 verify.py 3cf56881413~1 3cf56881413 <file>
@@ -166,49 +157,48 @@ verify.py 3cf56881413~1 3cf56881413 <file>
 | `translator/hot/tosca/tosca_policies_scaling.py` | 1 0 0 | PASS |
 | `translator/shell.py` | 1 0 0 | PASS |
 
-The fix is correct in all three files, and the unsafe `yaml.load` (B506) is resolved in each one. `utils.py` is still rejected, because an older finding that has nothing to do with the fix remains in the file (B113, an HTTP request without a timeout). This is the same limitation as case C12, now seen on real code. The reports are in `outputs/real-world/heat-translator/`.
+The fix is correct in all three files: the unsafe `yaml.load` (B506) is gone each time. `utils.py` still got rejected, because an older, unrelated finding stayed in that file (B113, an HTTP request with no timeout). It's the same weakness as case C12, this time on real code. Reports: `outputs/real-world/heat-translator/`.
 
-### 2. Detect, fix and verify on my own project
+### 2. My own project: find, fix, verify
 
-[job-tracker](https://github.com/Sarsa-25/job-tracker) is a small Flask app of mine. Bandit found one issue there:
+[job-tracker](https://github.com/Sarsa-25/job-tracker) is a small Flask app I built earlier. Bandit found one issue in it:
 
 ```
 B201  app.run(debug=True)   Severity: HIGH   Confidence: MEDIUM   CWE-94
 ```
 
-`debug=True` turns on the Werkzeug debugger. If the app can be reached over the network, the debugger lets anyone run code on the server. I wrote the fix by hand on a branch, so debug mode is now off unless `FLASK_DEBUG=1` is set:
+`debug=True` turns on the Werkzeug debugger. If the app can be reached over the network, anyone can run code on the server through it. I fixed it on a branch so debug mode stays off unless `FLASK_DEBUG=1` is set:
 
 ```python
 app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 ```
 
-```powershell
-verify.py main fix/flask-debug app.py
-```
-
-| File | Counts (r i p) | Verdict |
-|---|---|---|
-| `app.py` | 1 0 0 | PASS |
-
-B201 is resolved and nothing new was introduced, so the fix was merged. The report is in `outputs/real-world/job-tracker/`.
+The tool gave `1 0 0` and **PASS**: B201 resolved, nothing new introduced. So I merged the fix. Report: `outputs/real-world/job-tracker/`.
 
 ## Limitations
 
-- **C05: correct fix rejected.** Bandit flags every use of `subprocess` (B404, B603, B607), even a safe one.
-- **C12: correct fix rejected.** The strict policy also counts unrelated findings that were already in the file. The open-source check shows the same problem.
-- **C17: deleted code passes.** Removing the vulnerable function removes the finding, and a static scan cannot see the lost functionality.
-- **Text changes break matching.** If the vulnerable line itself changes (C06, C10, C15, C16), the same finding is counted as resolved + introduced. The verdict stays correct here, but the counts are wrong.
-- **One file per run**, and only what Bandit can detect. Bandit is a pattern-based scanner and can miss issues.
-- The 19 cases are small and hand-built; the results do not show general accuracy.
+- **C05, a correct fix rejected.** Bandit flags every use of `subprocess` (B404, B603, B607), even a safe one.
+- **C12, a correct fix rejected.** The strict rule also counts old findings that have nothing to do with the fix. I saw the same thing in the open-source check.
+- **C17, deleted code passes.** If you delete the vulnerable function, the finding disappears. A static scanner can't tell that you also lost the feature.
+- **Any change to the vulnerable line breaks matching.** In C06, C10, C15 and C16 the line's text changed, so the same bug was counted as resolved + introduced. The verdict was still right in these cases, but the counts were wrong.
+- It checks **one file per run**, and only finds what Bandit can detect. Bandit works by patterns and can miss things.
+- 19 small hand-built cases are not enough to make any claim about general accuracy.
+
+## How this project was made
+
+I built this project with help from an AI chat assistant (Claude). The assistant drafted much of the code and the fixes in the test set. I chose between the options it proposed, ran every experiment on my own machine, checked the results, and wrote the job-tracker fix myself.
+
+The fixes in the test set are not output from an AI coding tool such as Copilot. Testing fixes from such a tool is possible future work.
 
 ## Project structure
 
 ```
-verify.py          entry point: scan two refs, compare, save report
+verify.py          entry point: scan two refs, compare, save a report
 compare.py         finding identity, comparison, verdict
-run_cases.py       run all 19 cases and build the summary table
-build_cases.py     create the case/C05–C19 branches
-vulnerable_app.py  SQL injection example used by C01–C04
+run_cases.py       runs all 19 cases and builds the summary table
+build_cases.py     created the case/C05–C19 branches
+demo.ipynb         Google Colab demo
+vulnerable_app.py  the SQL injection example used by C01–C04
 outputs/           saved reports and summaries (evidence)
 requirements.txt   pinned dependencies
 ```
