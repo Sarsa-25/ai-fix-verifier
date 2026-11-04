@@ -1,0 +1,14 @@
+Date: 2026-11-04T20:07:54
+Before ref: main
+After ref: test/comment-only
+File: vulnerable_app.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 0 0 1
+
+Resolved:
+Introduced:
+Persisting:
+  [MEDIUM/LOW] ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+
+Verdict: REJECT

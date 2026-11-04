@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:08:30
+Before ref: case/C10-before
+After ref: case/C10-after
+File: cases/c10.py
+
+Policy: target mode (B506): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 1 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B506', 'c10.py', 'return yaml.load(text)')
+Introduced:
+  [MEDIUM/HIGH] ('B506', 'c10.py', 'return yaml.load(text, Loader=yaml.Loader)')
+Persisting:
+
+Verdict: REJECT

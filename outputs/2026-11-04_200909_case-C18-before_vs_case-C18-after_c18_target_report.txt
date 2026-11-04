@@ -1,0 +1,13 @@
+Date: 2026-11-04T20:09:09
+Before ref: case/C18-before
+After ref: case/C18-after
+File: cases/c18.py
+
+Policy: target mode (B608): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 0 0 0
+
+Resolved:
+Introduced:
+Persisting:
+
+Verdict: REVIEW

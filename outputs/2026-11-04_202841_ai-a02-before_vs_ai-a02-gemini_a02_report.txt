@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:28:41
+Before ref: ai/a02-before
+After ref: ai/a02-gemini
+File: ai_cases/a02.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 2 0 0
+
+Resolved:
+  [MEDIUM/LOW] ('B608', 'a02.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+  [MEDIUM/LOW] ('B608', 'a02.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+
+Verdict: PASS

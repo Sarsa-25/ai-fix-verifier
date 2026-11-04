@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:08:46
+Before ref: case/C14-before
+After ref: case/C14-after
+File: cases/c14.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 1 0 1
+
+Resolved:
+  [MEDIUM/LOW] ('B608', 'c14.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+  [MEDIUM/HIGH] ('B307', 'c14.py', 'return eval(expr)')
+
+Verdict: REJECT

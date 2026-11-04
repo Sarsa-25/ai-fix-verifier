@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:08:21
+Before ref: case/C08-before
+After ref: case/C08-after
+File: cases/c08.py
+
+Policy: target mode (B307): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 1 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B307', 'c08.py', 'return eval(expr)')
+Introduced:
+  [MEDIUM/HIGH] ('B102', 'c08.py', 'exec(f"value = {expr}", {}, result)')  (not targeted)
+Persisting:
+
+Verdict: REJECT

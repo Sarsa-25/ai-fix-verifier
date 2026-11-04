@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:29:32
+Before ref: ai/a07-before
+After ref: ai/a07-gemini
+File: ai_cases/a07.py
+
+Policy: target mode (B608): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 2 0 0
+
+Resolved:
+  [LOW/MEDIUM] ('B105', 'a07.py', 'password = "hunter2"')  (not targeted)
+  [MEDIUM/LOW] ('B608', 'a07.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+
+Verdict: PASS

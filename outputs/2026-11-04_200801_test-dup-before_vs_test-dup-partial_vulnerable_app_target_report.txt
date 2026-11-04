@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:08:01
+Before ref: test/dup-before
+After ref: test/dup-partial
+File: vulnerable_app.py
+
+Policy: target mode (B608): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 0 1
+
+Resolved:
+  [MEDIUM/LOW] ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+  [MEDIUM/LOW] ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+
+Verdict: REJECT

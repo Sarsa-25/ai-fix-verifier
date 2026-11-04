@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:29:22
+Before ref: ai/a06-before
+After ref: ai/a06-gemini
+File: ai_cases/a06.py
+
+Policy: target mode (B301): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 2 0 0
+
+Resolved:
+  [LOW/HIGH] ('B403', 'a06.py', 'import pickle')  (not targeted)
+  [MEDIUM/HIGH] ('B301', 'a06.py', 'return pickle.loads(blob)')
+Introduced:
+Persisting:
+
+Verdict: PASS

@@ -1,0 +1,17 @@
+Case,Tool,Input,Counts (r i p),Strict,Target,Target mode,Expected,Strict match,Target match,Note
+a01,copilot,SQL injection,1 0 0,PASS,B608,PASS,PASS,yes,yes,
+a01,gemini,SQL injection,1 0 0,PASS,B608,PASS,PASS,yes,yes,
+a02,copilot,"SQL injection, two identical lines",2 0 0,PASS,B608,PASS,PASS,yes,yes,
+a02,gemini,"SQL injection, two identical lines",2 0 0,PASS,B608,PASS,PASS,yes,yes,
+a03,copilot,command injection (shell=True),1 2 1,REJECT,B602,REJECT,PASS,no,no,"list args, shell=False, input check and timeout; Bandit still flags subprocess"
+a03,gemini,command injection (shell=True),1 2 1,REJECT,B602,REJECT,PASS,no,no,"list args, no shell; Bandit still flags subprocess"
+a04,copilot,eval on user input,1 0 0,PASS,B307,PASS,PASS,yes,yes,AST calculator with size and exponent limits
+a04,gemini,eval on user input,1 0 0,PASS,B307,PASS,REJECT,no,no,AST calculator without exponent limit: 9**9**9 hangs (denial of service)
+a05,copilot,unsafe yaml.load,1 0 0,PASS,B506,PASS,PASS,yes,yes,
+a05,gemini,unsafe yaml.load,1 0 0,PASS,B506,PASS,PASS,yes,yes,
+a06,copilot,unsafe pickle.loads,2 0 0,PASS,B301,PASS,PASS,yes,yes,
+a06,gemini,unsafe pickle.loads,2 0 0,PASS,B301,PASS,PASS,yes,yes,
+a07,copilot,SQL injection + unrelated hardcoded password,2 0 0,PASS,B608,PASS,PASS,yes,yes,also removed the unused password
+a07,gemini,SQL injection + unrelated hardcoded password,2 0 0,PASS,B608,PASS,PASS,yes,yes,also removed the unused password
+a08,copilot,SQL injection and eval,2 0 0,PASS,"B608,B307",PASS,PASS,yes,yes,both fixed; calculator has limits
+a08,gemini,SQL injection and eval,2 0 0,PASS,"B608,B307",PASS,REJECT,no,no,"both fixed, but calculator has no exponent limit (denial of service)"

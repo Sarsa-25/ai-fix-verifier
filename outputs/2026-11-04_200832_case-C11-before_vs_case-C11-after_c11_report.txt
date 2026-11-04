@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:08:32
+Before ref: case/C11-before
+After ref: case/C11-after
+File: cases/c11.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 2 0 0
+
+Resolved:
+  [LOW/HIGH] ('B403', 'c11.py', 'import pickle')
+  [MEDIUM/HIGH] ('B301', 'c11.py', 'return pickle.loads(blob)')
+Introduced:
+Persisting:
+
+Verdict: PASS

@@ -1,0 +1,14 @@
+Date: 2026-11-04T20:08:16
+Before ref: case/C07-before
+After ref: case/C07-after
+File: cases/c07.py
+
+Policy: target mode (B307): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B307', 'c07.py', 'return eval(expr)')
+Introduced:
+Persisting:
+
+Verdict: PASS

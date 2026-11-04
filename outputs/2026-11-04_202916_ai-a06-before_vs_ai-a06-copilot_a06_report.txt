@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:29:16
+Before ref: ai/a06-before
+After ref: ai/a06-copilot
+File: ai_cases/a06.py
+
+Policy: any introduced or persisting finding gives REJECT, at every severity
+Counts (resolved introduced persisting): 2 0 0
+
+Resolved:
+  [LOW/HIGH] ('B403', 'a06.py', 'import pickle')
+  [MEDIUM/HIGH] ('B301', 'a06.py', 'return pickle.loads(blob)')
+Introduced:
+Persisting:
+
+Verdict: PASS

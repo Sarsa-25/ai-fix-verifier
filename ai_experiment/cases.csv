@@ -1,0 +1,9 @@
+case,description,target
+a01,"SQL injection","B608"
+a02,"SQL injection, two identical lines","B608"
+a03,"command injection (shell=True)","B602"
+a04,"eval on user input","B307"
+a05,"unsafe yaml.load","B506"
+a06,"unsafe pickle.loads","B301"
+a07,"SQL injection, plus an unrelated hardcoded password","B608"
+a08,"SQL injection and eval in one file","B608,B307"

@@ -1,0 +1,15 @@
+Date: 2026-11-04T20:29:35
+Before ref: ai/a08-before
+After ref: ai/a08-copilot
+File: ai_cases/a08.py
+
+Policy: target mode (B307,B608): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 2 0 0
+
+Resolved:
+  [MEDIUM/LOW] ('B608', 'a08.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+  [MEDIUM/HIGH] ('B307', 'a08.py', 'return eval(expr)')
+Introduced:
+Persisting:
+
+Verdict: PASS

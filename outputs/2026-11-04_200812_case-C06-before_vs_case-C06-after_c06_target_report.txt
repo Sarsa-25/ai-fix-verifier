@@ -1,0 +1,16 @@
+Date: 2026-11-04T20:08:12
+Before ref: case/C06-before
+After ref: case/C06-after
+File: cases/c06.py
+
+Policy: target mode (B602): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 1 1
+
+Resolved:
+  [HIGH/HIGH] ('B602', 'c06.py', 'return subprocess.run(f"ping -c 1 {host}", shell=True, capture_output=True)')
+Introduced:
+  [HIGH/HIGH] ('B602', 'c06.py', 'return subprocess.run(f"ping -c 1 {shlex.quote(host)}", shell=True, capture_output=True)')
+Persisting:
+  [LOW/HIGH] ('B404', 'c06.py', 'import subprocess')  (not targeted)
+
+Verdict: REJECT

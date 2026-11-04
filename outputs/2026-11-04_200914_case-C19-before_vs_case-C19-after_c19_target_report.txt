@@ -1,0 +1,14 @@
+Date: 2026-11-04T20:09:14
+Before ref: case/C19-before
+After ref: case/C19-after
+File: cases/c19.py
+
+Policy: target mode (B608): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 0 0 1
+
+Resolved:
+Introduced:
+Persisting:
+  [MEDIUM/LOW] ('B608', 'c19.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+
+Verdict: REJECT

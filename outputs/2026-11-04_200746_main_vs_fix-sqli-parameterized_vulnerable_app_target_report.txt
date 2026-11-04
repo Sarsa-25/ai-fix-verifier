@@ -1,0 +1,14 @@
+Date: 2026-11-04T20:07:46
+Before ref: main
+After ref: fix/sqli-parameterized
+File: vulnerable_app.py
+
+Policy: target mode (B608): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  [MEDIUM/LOW] ('B608', 'vulnerable_app.py', 'query = f"SELECT * FROM users WHERE name = \'{username}\'"')
+Introduced:
+Persisting:
+
+Verdict: PASS

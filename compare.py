@@ -47,6 +47,24 @@ def verdict(resolved, introduced, persisting):
         return "REVIEW"
 
 
+def verdict_target(resolved, introduced, persisting, targets):
+    """Target mode: judge the fix against the findings it was meant to remove.
+
+    targets is a set of Bandit test IDs, for example {"B608"}.
+    - anything introduced -> REJECT
+    - a target finding still there -> REJECT
+    - a target finding resolved -> PASS (old findings outside the target are only reported)
+    - no target finding before the fix -> REVIEW
+    """
+    if introduced:
+        return "REJECT"
+    if any(key[0] in targets for key in persisting):
+        return "REJECT"
+    if any(key[0] in targets for key in resolved):
+        return "PASS"
+    return "REVIEW"
+
+
 def classify(before_findings, after_findings):
     """Compare findings as multisets, so identical keys are counted, not merged.
 

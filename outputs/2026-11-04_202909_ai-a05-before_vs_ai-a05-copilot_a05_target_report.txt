@@ -1,0 +1,14 @@
+Date: 2026-11-04T20:29:09
+Before ref: ai/a05-before
+After ref: ai/a05-copilot
+File: ai_cases/a05.py
+
+Policy: target mode (B506): REJECT if anything is introduced or a target finding persists; other old findings are only reported
+Counts (resolved introduced persisting): 1 0 0
+
+Resolved:
+  [MEDIUM/HIGH] ('B506', 'a05.py', 'return yaml.load(text)')
+Introduced:
+Persisting:
+
+Verdict: PASS
